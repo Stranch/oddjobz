@@ -3,9 +3,10 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { status } = await request.json();
 
     if (!status) {
@@ -19,7 +20,7 @@ export async function PUT(
       `UPDATE quotes SET status = $1, updated_at = CURRENT_TIMESTAMP 
        WHERE id = $2 
        RETURNING *`,
-      [status, params.id]
+      [status, id]
     );
 
     if (result.rows.length === 0) {

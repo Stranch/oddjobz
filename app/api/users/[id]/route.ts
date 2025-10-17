@@ -3,12 +3,13 @@ import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const result = await query(
       'SELECT id, name, service_type, area, bio, phone, hourly_rate, profile_image_url, rating, total_reviews, created_at FROM users WHERE id = $1',
-      [params.id]
+      [id]
     );
 
     if (result.rows.length === 0) {
@@ -29,16 +30,17 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const { bio, phone, hourly_rate, profile_image_url } = await request.json();
 
     const result = await query(
       `UPDATE users SET bio = $1, phone = $2, hourly_rate = $3, profile_image_url = $4, updated_at = CURRENT_TIMESTAMP 
        WHERE id = $5 
        RETURNING id, name, service_type, area, bio, phone, hourly_rate, profile_image_url, rating, total_reviews`,
-      [bio, phone, hourly_rate, profile_image_url, params.id]
+      [bio, phone, hourly_rate, profile_image_url, id]
     );
 
     if (result.rows.length === 0) {
