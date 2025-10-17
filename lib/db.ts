@@ -1,14 +1,27 @@
 import { Pool } from 'pg';
 
-const pool = new Pool({
-  host: 'localhost',
-  port: 5432,
-  database: 'service_board',
-  user: process.env.PGUSER,
-  password: process.env.PGPASSWORD,
-});
+let pool: Pool | null = null;
+
+// Initialize pool only if DATABASE_URL is provided
+if (process.env.DATABASE_URL) {
+  pool = new Pool({
+    connectionString: process.env.DATABASE_URL,
+  });
+} else if (process.env.PGUSER && process.env.PGPASSWORD) {
+  pool = new Pool({
+    host: process.env.PGHOST || 'localhost',
+    port: parseInt(process.env.PGPORT || '5432'),
+    database: process.env.PGDATABASE || 'service_board',
+    user: process.env.PGUSER,
+    password: process.env.PGPASSWORD,
+  });
+}
 
 export async function query(text: string, params?: any[]) {
+  if (!pool) {
+    throw new Error('Database not configured. Please set DATABASE_URL or PGUSER/PGPASSWORD environment variables.');
+  }
+  
   const start = Date.now();
   try {
     const res = await pool.query(text, params);
@@ -22,6 +35,11 @@ export async function query(text: string, params?: any[]) {
 }
 
 export async function initializeDatabase() {
+  if (!pool) {
+    console.log('Database not configured, skipping initialization');
+    return;
+  }
+
   try {
     // Users table
     await query(`
