@@ -31,6 +31,10 @@ export default function LoginPage() {
     }
   };
 
+  const handleForgotPassword = () => {
+    alert('Password reset functionality coming soon! Please contact support at tybusiness1970@gmail.com');
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-8">
@@ -64,6 +68,15 @@ export default function LoginPage() {
 
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading ? 'Signing in...' : 'Sign In'}
+          </Button>
+
+          <Button 
+            type="button" 
+            variant="ghost" 
+            className="w-full text-blue-600 hover:text-blue-700"
+            onClick={handleForgotPassword}
+          >
+            Forgot Password?
           </Button>
         </form>
 
